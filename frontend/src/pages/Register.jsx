@@ -1,6 +1,6 @@
 import { useState } from "react";
 import api from "../services/API";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 function Register() {
   const [name, setName] = useState("");
@@ -8,58 +8,114 @@ function Register() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const [msg, setMsg] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setMsg("");
+    setError("");
+    setLoading(true);
     api
       .post("/auth/register", { name, email, password })
       .then(() => {
-        setMsg("Registration successful. Please login.");
-        setTimeout(() => navigate("/login"), 1000);
+        setMsg("Registration successful! Redirecting to login...");
+        setTimeout(() => navigate("/login"), 1500);
       })
-      .catch(() => setMsg("Something went wrong"));
+      .catch((err) => {
+        setError(err.response?.data?.message || "Something went wrong. Please try again.");
+      })
+      .finally(() => setLoading(false));
   };
 
   return (
-    <div className="flex justify-center mt-10">
-      <form className="w-full max-w-sm border p-6 rounded" onSubmit={handleSubmit}>
-        <h2 className="text-2xl font-bold mb-4 text-center">Register</h2>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50 py-12 px-4">
+      <div className="w-full max-w-md">
+        <div className="bg-white rounded-xl shadow-2xl p-8">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-800 mb-2">Create Account</h2>
+            <p className="text-gray-600">Join us and start shopping</p>
+          </div>
 
-        {msg && <p className="text-green-600 text-sm mb-2">{msg}</p>}
+          {msg && (
+            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-4">
+              {msg}
+            </div>
+          )}
 
-        <label className="block mb-2 text-sm">
-          Name
-          <input
-            className="border w-full p-2 mt-1"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </label>
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+              {error}
+            </div>
+          )}
 
-        <label className="block mb-2 text-sm">
-          Email
-          <input
-            type="email"
-            className="border w-full p-2 mt-1"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </label>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Full Name
+              </label>
+              <input
+                type="text"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                placeholder="Enter your full name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
 
-        <label className="block mb-4 text-sm">
-          Password
-          <input
-            type="password"
-            className="border w-full p-2 mt-1"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </label>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Email
+              </label>
+              <input
+                type="email"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
 
-        <button className="bg-green-600 text-white w-full py-2 rounded">
-          Register
-        </button>
-      </form>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Password
+              </label>
+              <input
+                type="password"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                placeholder="Create a password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+              />
+              <p className="text-xs text-gray-500 mt-1">Minimum 6 characters</p>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition-all transform hover:scale-105 active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? "Creating account..." : "Register"}
+            </button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-gray-600">
+              Already have an account?{" "}
+              <Link
+                to="/login"
+                className="text-green-600 hover:text-green-700 font-semibold cursor-pointer"
+              >
+                Login here
+              </Link>
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

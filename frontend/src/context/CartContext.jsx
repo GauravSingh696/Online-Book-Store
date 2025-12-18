@@ -17,10 +17,30 @@ export function CartProvider({ children }) {
     });
   };
 
+  const removeFromCart = (bookId) => {
+    setItems((prev) => prev.filter((it) => it.id !== bookId));
+  };
+
+  const updateQuantity = (bookId, change) => {
+    setItems((prev) => {
+      return prev
+        .map((it) => {
+          if (it.id === bookId) {
+            const newQuantity = it.quantity + change;
+            return newQuantity > 0 ? { ...it, quantity: newQuantity } : null;
+          }
+          return it;
+        })
+        .filter(Boolean);
+    });
+  };
+
   const clearCart = () => setItems([]);
 
   return (
-    <CartContext.Provider value={{ items, addToCart, clearCart }}>
+    <CartContext.Provider
+      value={{ items, addToCart, removeFromCart, updateQuantity, clearCart }}
+    >
       {children}
     </CartContext.Provider>
   );

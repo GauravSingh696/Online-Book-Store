@@ -48,6 +48,11 @@ public class OrderController {
 
             Book book = bookRepository.findById(bookId).orElseThrow(() -> new RuntimeException("Book not found"));
 
+            // Check stock availability
+            if (book.getStock() == null || book.getStock() < quantity) {
+                throw new RuntimeException("Insufficient stock for book: " + book.getTitle());
+            }
+
             OrderItem oi = new OrderItem();
             oi.setOrder(order);
             oi.setBook(book);
@@ -56,6 +61,10 @@ public class OrderController {
 
             total += book.getPrice() * quantity;
             orderItems.add(oi);
+
+            // Decrease stock and save the updated book
+            book.setStock(book.getStock() - quantity);
+            bookRepository.save(book);
         }
 
         order.setTotalAmount(total);

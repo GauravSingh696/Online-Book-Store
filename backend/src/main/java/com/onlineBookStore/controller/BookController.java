@@ -19,6 +19,12 @@ public class BookController {
         return bookRepository.findAll();
     }
 
+    @GetMapping("/{id}")
+    public Book getBookById(@PathVariable Integer id) {
+        return bookRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Book not found with id: " + id));
+    }
+
     @PostMapping
     public Book addBook(@RequestBody Book book) {
         return bookRepository.save(book);

@@ -17,5 +17,8 @@ public class Book {
 
     private String category;
     private Integer stock;
+
+    @Column(length = 2000)
+    private String description;
 }
 
